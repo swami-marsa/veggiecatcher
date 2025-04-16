@@ -15,28 +15,28 @@ struct LevelCompleteView: View {
             VStack(spacing: 25) {
                 // Level Complete Text
                 Text("Level \(gameState.level) Complete!")
-                    .font(.system(size: 36, weight: .bold))
+                    .font(Font.system(size: 36, weight: .bold))
                     .foregroundColor(.white)
-                    .glow(color: .green, radius: 10)
+                    .addGlow(color: .green, radius: 10)
                 
                 // Score Display
                 VStack(spacing: 15) {
                     Text("Level Score: \(gameState.score)")
-                        .font(.title2.bold())
+                        .font(Font.title2.bold())
                         .foregroundColor(.yellow)
-                        .glow(color: .orange, radius: 5)
+                        .addGlow(color: .orange, radius: 5)
                     
                     Text("High Score: \(gameState.highScore)")
-                        .font(.title3.bold())
+                        .font(Font.title3.bold())
                         .foregroundColor(.white)
-                        .glow(color: .blue, radius: 5)
+                        .addGlow(color: .blue, radius: 5)
                     
                     // Bonus Life Message (if not at max lives)
                     if gameState.remainingLives < 5 {
                         Text("🎁 Bonus Life Awarded!")
-                            .font(.title3.bold())
+                            .font(Font.title3.bold())
                             .foregroundColor(.green)
-                            .glow(color: .green, radius: 8)
+                            .addGlow(color: .green, radius: 8)
                             .padding(.top, 5)
                             .transition(.scale.combined(with: .opacity))
                     }
@@ -54,7 +54,7 @@ struct LevelCompleteView: View {
                         }
                     } label: {
                         Text("Next Level")
-                            .font(.title2.bold())
+                            .font(Font.title2.bold())
                             .foregroundColor(.white)
                             .frame(width: 200, height: 50)
                             .background(
@@ -76,7 +76,7 @@ struct LevelCompleteView: View {
                         }
                     } label: {
                         Text("Home")
-                            .font(.title2.bold())
+                            .font(Font.title2.bold())
                             .foregroundColor(.white)
                             .frame(width: 200, height: 50)
                             .background(

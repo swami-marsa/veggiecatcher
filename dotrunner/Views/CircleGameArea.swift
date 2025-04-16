@@ -86,7 +86,7 @@ struct CircleGameArea: View {
                                 .scaleEffect(circle.scale)
                                 .onTapGesture {
                                     if !gameState.isPaused && !gameState.isGameOver {
-                                        collectVegetable(circle)
+                                        handleCircleCollection(circle)
                                     }
                                 }
                         }
@@ -262,7 +262,7 @@ struct CircleGameArea: View {
         }
     }
     
-    private func collectVegetable(_ circle: GameCircle) {
+    private func handleCircleCollection(_ circle: GameCircle) {
         if circle.color == .bomb {
             handleBombCollection(circle)
             return
@@ -271,7 +271,8 @@ struct CircleGameArea: View {
         // Play swipe sound for collecting vegetables
         SoundManager.shared.playSound("swipe")
         
-        gameState.addScore(circle.color)
+        // Use the gameState method for adding score instead of direct access
+        gameState.addScore(for: circle.color)
         
         withAnimation(.easeOut(duration: 0.3)) {
             if let index = gameState.circles.firstIndex(where: { $0.id == circle.id }) {
@@ -299,10 +300,9 @@ struct CircleGameArea: View {
         // Play explosion sound
         SoundManager.shared.playSound("explosion")
         
-        // Reduce score for bomb hit
-        withAnimation {
-            gameState.score = max(0, gameState.score - 20)  // Direct score reduction
-        }
+        // Use gameState method to decrease score for bomb hit
+        // Instead of directly modifying the score property
+        gameState.addScore(for: .bomb)
         
         // Trigger screen shake
         addScreenShakeAnimation()
@@ -338,11 +338,11 @@ struct CircleGameArea: View {
             }
         }
         
-        // Reduce life
-        gameState.remainingLives -= 1
+        // Call lifeManager's loseLife method instead of directly modifying remainingLives
+        let isGameOver = gameState.lifeManager.loseLife()
         
         // Check for game over
-        if gameState.remainingLives <= 0 {
+        if isGameOver {
             gameState.isGameOver = true
             SoundManager.shared.playSound("levelfail")
         }

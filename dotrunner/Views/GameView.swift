@@ -185,7 +185,7 @@ struct GameView: View {
                                         }
                                     }) {
                                         Text("Resume Game")
-                                            .buttonStyle(width: 200, color: .green)
+                                            .gameButtonStyle(width: 200, color: .green)
                                     }
                                     
                                     Button(action: {
@@ -195,14 +195,14 @@ struct GameView: View {
                                         }
                                     }) {
                                         Text("Main Menu")
-                                            .buttonStyle(width: 200, color: .blue)
+                                            .gameButtonStyle(width: 200, color: .blue)
                                     }
                                     
                                     Button(action: {
                                         exit(0)
                                     }) {
                                         Text("Quit Game")
-                                            .buttonStyle(width: 200, color: .red)
+                                            .gameButtonStyle(width: 200, color: .red)
                                     }
                                 }
                             }
@@ -300,7 +300,7 @@ struct ProgressBar: View {
 
 // Helper extension for button styling
 extension Text {
-    func buttonStyle(width: CGFloat, color: Color) -> some View {
+    func gameButtonStyle(width: CGFloat, color: Color) -> some View {
         self
             .font(.title3.bold())
             .foregroundColor(.white)
