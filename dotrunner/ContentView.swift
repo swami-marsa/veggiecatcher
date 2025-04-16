@@ -8,14 +8,38 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var gameState = GameState()
+    @State private var showSplash = true
+    @AppStorage("isMusicEnabled") private var isMusicEnabled = true
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ZStack {
+            if showSplash {
+                SplashScreen(gameState: gameState)
+                    .transition(.opacity)
+                    .onAppear {
+                        // Start music when app launches
+                        if isMusicEnabled {
+                            SoundManager.shared.playBackgroundMusic("game_home")
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                            withAnimation {
+                                showSplash = false
+                            }
+                        }
+                    }
+            } else if gameState.isHomeScreen {
+                HomeScreen(gameState: gameState)
+            } else {
+                GameView(gameState: gameState)
+            }
         }
-        .padding()
+        .onAppear {
+            // Initialize sound settings
+            SoundManager.shared.setMusicEnabled(isMusicEnabled)
+            SoundManager.shared.setEffectsEnabled(true)
+        }
     }
 }
 
