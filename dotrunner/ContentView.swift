@@ -11,6 +11,7 @@ struct ContentView: View {
     @StateObject private var gameState = GameState()
     @State private var showSplash = true
     @AppStorage("isMusicEnabled") private var isMusicEnabled = true
+    @AppStorage("isSoundEffectsEnabled") private var isSoundEffectsEnabled = true
     
     var body: some View {
         ZStack {
@@ -36,9 +37,9 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            // Initialize sound settings
+            // Initialize sound settings with saved preferences
             SoundManager.shared.setMusicEnabled(isMusicEnabled)
-            SoundManager.shared.setEffectsEnabled(true)
+            SoundManager.shared.setEffectsEnabled(isSoundEffectsEnabled)
         }
     }
 }

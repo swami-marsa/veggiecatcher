@@ -241,7 +241,7 @@ struct CircleGameArea: View {
                             showMissEffects(at: circle.position)
                             gameState.missVegetable() // This will handle the life loss logic
                         } else {
-                            SoundManager.shared.stopSound("bombtick")
+                            SoundManager.shared.stopSound(Constants.Sounds.bombTick)
                         }
                         continue
                     }
@@ -254,7 +254,7 @@ struct CircleGameArea: View {
                 }
                 
                 if !hasBomb {
-                    SoundManager.shared.stopSound("bombtick")
+                    SoundManager.shared.stopSound(Constants.Sounds.bombTick)
                 }
                 
                 gameState.circles = updatedCircles
@@ -269,7 +269,7 @@ struct CircleGameArea: View {
         }
         
         // Play swipe sound for collecting vegetables
-        SoundManager.shared.playSound("swipe")
+        SoundManager.shared.playSound(Constants.Sounds.swipe)
         
         // Use the gameState method for adding score instead of direct access
         gameState.addScore(for: circle.color)
@@ -295,10 +295,10 @@ struct CircleGameArea: View {
     
     private func handleBombCollection(_ circle: GameCircle) {
         // Stop the bomb tick sound
-        SoundManager.shared.stopSound("bombtick")
+        SoundManager.shared.stopSound(Constants.Sounds.bombTick)
         
         // Play explosion sound
-        SoundManager.shared.playSound("explosion")
+        SoundManager.shared.playSound(Constants.Sounds.explosion)
         
         // Use gameState method to decrease score for bomb hit
         // Instead of directly modifying the score property
@@ -344,7 +344,7 @@ struct CircleGameArea: View {
         // Check for game over
         if isGameOver {
             gameState.isGameOver = true
-            SoundManager.shared.playSound("levelfail")
+            SoundManager.shared.playSound(Constants.Sounds.levelFail)
         }
         
         // Remove the bomb after animation
@@ -401,7 +401,7 @@ struct CircleGameArea: View {
         fallTimer?.invalidate()
         fallTimer = nil
         // Stop bomb tick sound when game is paused or stopped
-        SoundManager.shared.stopSound("bombtick")
+        SoundManager.shared.stopSound(Constants.Sounds.bombTick)
     }
     
     private func startSpawning(screenWidth: CGFloat) {
@@ -466,7 +466,7 @@ struct CircleGameArea: View {
         let newCircle: GameCircle
         if shouldSpawnBomb && !gameState.circles.contains(where: { $0.color == .bomb }) {
             gameState.spawnCounter = 0
-            SoundManager.shared.playSound("bombtick")
+            SoundManager.shared.playSound(Constants.Sounds.bombTick)
             newCircle = GameCircle(color: .bomb, position: spawnPosition)
         } else if !incompleteVegetables.isEmpty {
             // Only spawn from incomplete vegetables

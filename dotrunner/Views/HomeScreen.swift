@@ -61,7 +61,7 @@ struct HomeScreen: View {
                             isMusicEnabled.toggle()
                             SoundManager.shared.setMusicEnabled(isMusicEnabled)
                             if isMusicEnabled {
-                                SoundManager.shared.playBackgroundMusic("game_home")
+                                SoundManager.shared.playBackgroundMusic(Constants.Sounds.gameHome)
                             }
                         }) {
                             Image(systemName: isMusicEnabled ? "music.note" : "speaker.slash.circle.fill")
@@ -104,7 +104,7 @@ struct HomeScreen: View {
                         Button(action: {
                             isSoundEffectsEnabled.toggle()
                             if isSoundEffectsEnabled {
-                                SoundManager.shared.playSound("swipe")
+                                SoundManager.shared.playSound(Constants.Sounds.swipe)
                             }
                             SoundManager.shared.setEffectsEnabled(isSoundEffectsEnabled)
                         }) {
@@ -237,6 +237,21 @@ struct HomeScreen: View {
                 .padding(.bottom, 50)
             }
             .padding(.horizontal)
+        }
+        .onAppear {
+            // Start playing home screen music if enabled
+            if isMusicEnabled {
+                SoundManager.shared.playBackgroundMusic(Constants.Sounds.gameHome)
+            }
+        }
+        .onDisappear {
+            // Clean up any resources when view disappears
+            // This prevents audio resource leaks
+            if !gameState.isHomeScreen {
+                // Only stop home music if we're actually leaving the home screen
+                // (not just temporarily disappearing due to system UI)
+                SoundManager.shared.stopSound(Constants.Sounds.gameHome)
+            }
         }
     }
 }

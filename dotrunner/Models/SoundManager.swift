@@ -79,7 +79,13 @@ class SoundManager {
     }
     
     func playSound(_ name: String, loop: Bool = false) {
-        if !effectsEnabled && !name.contains("game_") {
+        // Check if this is a game sound (background music) or a sound effect
+        let isGameSound = name.contains("game_")
+        
+        // Don't play sound effects if they're disabled
+        if !effectsEnabled && !isGameSound {
+            // Skip playing the sound if effects are disabled and this isn't a game sound
+            print("ℹ️ Sound effect skipped (disabled): \(name)")
             return
         }
         
@@ -90,7 +96,7 @@ class SoundManager {
         
         player.currentTime = 0
         player.numberOfLoops = loop ? -1 : 0
-        player.volume = name.contains("game_") ? musicVolume : effectsVolume
+        player.volume = isGameSound ? musicVolume : effectsVolume
         
         if !player.play() {
             print("⚠️ Failed to play sound: \(name)")
