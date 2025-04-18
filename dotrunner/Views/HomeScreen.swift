@@ -174,23 +174,37 @@ struct HomeScreen: View {
                                 gameState.isHomeScreen = false
                             }
                         } label: {
-                            Text("Continue Level \(gameState.lastPlayedLevel + 1)")
-                                .font(.title2.bold())
-                                .foregroundColor(.white)
-                                .frame(width: 250, height: 50)
-                                .background(
-                                    LinearGradient(colors: [.blue.opacity(0.8), .blue.opacity(0.6)],
-                                                 startPoint: .topLeading,
-                                                 endPoint: .bottomTrailing)
-                                )
-                                .cornerRadius(25)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(Color.white.opacity(0.6), lineWidth: 1)
-                                )
-                                .shadow(color: .blue.opacity(0.5), radius: 8)
-                                .shadow(color: .black.opacity(0.3), radius: 5, x: 2, y: 2)
+                            HStack {
+                                Image(systemName: "arrow.triangle.2.circlepath")
+                                    .font(.title3)
+                                Text("Continue Journey")
+                                    .font(.title3.bold())
+                            }
+                            .foregroundColor(.white)
+                            .frame(width: 280, height: 60)
+                            .background(
+                                LinearGradient(colors: [.purple.opacity(0.8), .blue.opacity(0.7)],
+                                             startPoint: .topLeading,
+                                             endPoint: .bottomTrailing)
+                            )
+                            .cornerRadius(30)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 30)
+                                    .stroke(Color.white.opacity(0.6), lineWidth: 2)
+                            )
+                            .shadow(color: .blue.opacity(0.5), radius: 10)
+                            .overlay(
+                                Text("Level \(gameState.lastPlayedLevel + 1)")
+                                    .font(.caption.bold())
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 4)
+                                    .background(Color.black.opacity(0.6))
+                                    .cornerRadius(12)
+                                    .offset(y: 40)
+                            )
                         }
+                        .padding(.bottom, 10)
                     }
                     
                     Button {
@@ -199,22 +213,25 @@ struct HomeScreen: View {
                             gameState.isHomeScreen = false
                         }
                     } label: {
-                        Text("New Game")
-                            .font(.title2.bold())
-                            .foregroundColor(.white)
-                            .frame(width: 200, height: 50)
-                            .background(
-                                LinearGradient(colors: [.green.opacity(0.8), .green.opacity(0.6)],
-                                             startPoint: .topLeading,
-                                             endPoint: .bottomTrailing)
-                            )
-                            .cornerRadius(25)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 25)
-                                    .stroke(Color.white.opacity(0.6), lineWidth: 1)
-                            )
-                            .shadow(color: .green.opacity(0.5), radius: 8)
-                            .shadow(color: .black.opacity(0.3), radius: 5, x: 2, y: 2)
+                        HStack {
+                            Image(systemName: "play.fill")
+                                .font(.title3)
+                            Text("New Adventure")
+                                .font(.title3.bold())
+                        }
+                        .foregroundColor(.white)
+                        .frame(width: 280, height: 60)
+                        .background(
+                            LinearGradient(colors: [.orange.opacity(0.8), .red.opacity(0.7)],
+                                         startPoint: .topLeading,
+                                         endPoint: .bottomTrailing)
+                        )
+                        .cornerRadius(30)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 30)
+                                .stroke(Color.white.opacity(0.6), lineWidth: 2)
+                        )
+                        .shadow(color: .red.opacity(0.5), radius: 10)
                     }
                 }
                 .padding(.bottom, 50)
