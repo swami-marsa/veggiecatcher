@@ -121,6 +121,13 @@ class SoundManager {
         }
     }
     
+    func isPlaying(_ name: String) -> Bool {
+        guard let player = audioPlayers[name] else {
+            return false
+        }
+        return player.isPlaying
+    }
+    
     func setMusicEnabled(_ enabled: Bool) {
         musicEnabled = enabled
         if !enabled {

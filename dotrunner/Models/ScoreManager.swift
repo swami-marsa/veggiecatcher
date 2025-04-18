@@ -67,6 +67,10 @@ class ScoreManager {
     func saveLastPlayedLevel(_ level: Int) {
         lastPlayedLevel = level
         UserDefaults.standard.set(lastPlayedLevel, forKey: Constants.UserDefaultsKeys.lastPlayedLevel)
+        print("DEBUG: ScoreManager - Saved lastPlayedLevel = \(lastPlayedLevel) to UserDefaults")
+        
+        // Force UserDefaults to save immediately
+        UserDefaults.standard.synchronize()
     }
     
     /// Save current score for game continuation

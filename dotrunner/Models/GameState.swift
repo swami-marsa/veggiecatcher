@@ -163,6 +163,8 @@ class GameState: ObservableObject {
         let savedScore = scoreManager.continuationScore
         let savedLives = lifeManager.remainingLives
         
+        print("DEBUG: continueGame - lastLevel = \(lastLevel), savedScore = \(savedScore), savedLives = \(savedLives)")
+        
         // Reset game but preserve progress
         resetGame()
         
@@ -170,6 +172,8 @@ class GameState: ObservableObject {
         scoreManager.setScore(savedScore)
         levelManager.setLevel(lastLevel + 1) // Continue at next level
         lifeManager.setLives(savedLives)
+        
+        print("DEBUG: continueGame - Set level to \(levelManager.currentLevel)")
         
         // Start the continued game
         isHomeScreen = false
@@ -238,6 +242,9 @@ class GameState: ObservableObject {
         scoreManager.saveLastPlayedLevel(levelManager.currentLevel)
         scoreManager.saveContinuationScore()
         
+        // Debug lastPlayedLevel
+        print("DEBUG: Saved lastPlayedLevel = \(levelManager.currentLevel)")
+        
         // Advance to next level
         levelManager.advanceToNextLevel()
         
@@ -267,13 +274,25 @@ class GameState: ObservableObject {
     func goToHome() {
         // Save game state
         if !isGameOver {
-            scoreManager.saveLastPlayedLevel(levelManager.currentLevel)
+            print("DEBUG: goToHome - Saving lastPlayedLevel = \(levelManager.currentLevel)")
+            
+            // Fix: Ensure the level is properly saved even after level completion
+            // This is critical for the continue button to appear
+            let levelToSave = isLevelComplete ? levelManager.currentLevel : levelManager.currentLevel
+            scoreManager.saveLastPlayedLevel(levelToSave)
             scoreManager.saveContinuationScore()
+            
+            // Force UserDefaults to synchronize
+            UserDefaults.standard.synchronize()
         } else {
             // Reset progress if game over
+            print("DEBUG: goToHome - Game over, resetting progress")
             scoreManager.saveContinuationScore(0)
             scoreManager.saveLastPlayedLevel(1)
             lifeManager.resetLives()
+            
+            // Force UserDefaults to synchronize
+            UserDefaults.standard.synchronize()
         }
         
         // Update game state

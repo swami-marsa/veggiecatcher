@@ -167,7 +167,7 @@ struct HomeScreen: View {
                 
                 // Game Buttons
                 VStack(spacing: 25) {
-                    if gameState.lastPlayedLevel > 1 && !gameState.isGameOver {
+                    if gameState.lastPlayedLevel >= 1 {
                         Button {
                             withAnimation {
                                 gameState.continueGame()
@@ -194,7 +194,7 @@ struct HomeScreen: View {
                             )
                             .shadow(color: .blue.opacity(0.5), radius: 10)
                             .overlay(
-                                Text("Level \(gameState.lastPlayedLevel + 1)")
+                                Text("Level \(max(2, gameState.lastPlayedLevel + 1))")
                                     .font(.caption.bold())
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 12)
@@ -243,6 +243,11 @@ struct HomeScreen: View {
             if isMusicEnabled {
                 SoundManager.shared.playBackgroundMusic(Constants.Sounds.gameHome)
             }
+            
+            // Debug the continue button condition
+            print("DEBUG: lastPlayedLevel = \(gameState.lastPlayedLevel)")
+            print("DEBUG: isGameOver = \(gameState.isGameOver)")
+            print("DEBUG: Continue button should show: \(gameState.lastPlayedLevel > 1 && !gameState.isGameOver)")
         }
         .onDisappear {
             // Clean up any resources when view disappears

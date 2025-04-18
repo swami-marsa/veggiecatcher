@@ -240,8 +240,6 @@ struct CircleGameArea: View {
                             // Show miss effect when vegetable is lost
                             showMissEffects(at: circle.position)
                             gameState.missVegetable() // This will handle the life loss logic
-                        } else {
-                            SoundManager.shared.stopSound(Constants.Sounds.bombTick)
                         }
                         continue
                     }
@@ -253,8 +251,12 @@ struct CircleGameArea: View {
                     }
                 }
                 
+                // Make sure bomb tick sound plays as long as there's at least one bomb
+                // and stops when there are no bombs
                 if !hasBomb {
                     SoundManager.shared.stopSound(Constants.Sounds.bombTick)
+                } else if !SoundManager.shared.isPlaying(Constants.Sounds.bombTick) {
+                    SoundManager.shared.playSound(Constants.Sounds.bombTick, loop: true)
                 }
                 
                 gameState.circles = updatedCircles
@@ -411,8 +413,16 @@ struct CircleGameArea: View {
         
         guard !gameState.isPaused && !gameState.isGameOver && !gameState.isLevelComplete else { return }
         
-        // Adjust spawn interval based on level
-        let baseInterval = max(1.5 - (Double(gameState.level) * 0.1), 0.8)
+        // Adjust spawn interval based on level - make items spawn faster in higher levels
+        // But not too fast to overwhelm the player
+        let baseInterval: Double
+        if gameState.level <= 3 {
+            baseInterval = max(1.3 - (Double(gameState.level) * 0.05), 0.8)
+        } else if gameState.level <= 7 {
+            baseInterval = max(1.1 - (Double(gameState.level - 3) * 0.05), 0.7)
+        } else {
+            baseInterval = max(0.9 - (Double(gameState.level - 7) * 0.03), 0.6)
+        }
         
         // Create new timer
         spawnTimer = Timer.scheduledTimer(withTimeInterval: baseInterval, repeats: true) { _ in
@@ -454,17 +464,40 @@ struct CircleGameArea: View {
         
         // Reduced bomb spawn chance and made it more predictable
         gameState.spawnCounter += 1
-        let minVegetablesBeforeBomb = 7  // Increased minimum vegetables before bomb
-        let bombSpawnThreshold = min(7 + gameState.level, 15)  // Increased threshold and cap
+        let minVegetablesBeforeBomb = 5  // Minimum vegetables before any bomb can spawn
         
-        let shouldSpawnBomb = gameState.spawnCounter >= minVegetablesBeforeBomb && 
-                             gameState.spawnCounter >= bombSpawnThreshold  // Fixed typo here
+        // Simple bomb spawn threshold based on level
+        let bombSpawnThreshold: Int
+        if gameState.level <= 3 {
+            bombSpawnThreshold = 12
+        } else if gameState.level <= 7 {
+            bombSpawnThreshold = 10
+        } else {
+            bombSpawnThreshold = 8
+        }
+        
+        // Simple condition: Spawn bomb when counter exceeds threshold
+        let shouldSpawnBomb = gameState.spawnCounter >= bombSpawnThreshold
         
         let spawnPosition = CGPoint(x: spawnX, y: spawnY)
         
+        // Get maximum allowed bombs based on level - this is the core requirement
+        let maxAllowedBombs: Int
+        if gameState.level <= 5 {
+            maxAllowedBombs = 2
+        } else if gameState.level <= 10 {
+            maxAllowedBombs = 3
+        } else {
+            maxAllowedBombs = 4
+        }
+        
+        // Count current bombs on screen
+        let currentBombCount = gameState.circles.filter { $0.color == .bomb }.count
+        
         // Create and spawn the circle
         let newCircle: GameCircle
-        if shouldSpawnBomb && !gameState.circles.contains(where: { $0.color == .bomb }) {
+        if shouldSpawnBomb && currentBombCount < maxAllowedBombs {
+            // Always reset counter when spawning a bomb
             gameState.spawnCounter = 0
             SoundManager.shared.playSound(Constants.Sounds.bombTick)
             newCircle = GameCircle(color: .bomb, position: spawnPosition)

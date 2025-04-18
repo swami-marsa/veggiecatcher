@@ -72,6 +72,14 @@ struct LevelCompleteView: View {
                     
                     Button {
                         withAnimation {
+                            // Make sure level is properly saved before going home
+                            gameState.scoreManager.saveLastPlayedLevel(gameState.level)
+                            gameState.scoreManager.saveContinuationScore()
+                            
+                            // Force UserDefaults to synchronize
+                            UserDefaults.standard.synchronize()
+                            
+                            // Now go to home
                             gameState.goToHome()
                         }
                     } label: {
