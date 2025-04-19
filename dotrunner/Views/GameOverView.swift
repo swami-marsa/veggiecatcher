@@ -2,6 +2,7 @@ import SwiftUI
 
 struct GameOverView: View {
     @ObservedObject var gameState: GameState
+    @State private var showRewardedAdView = false
     private let deviceManager = DeviceManager.shared
     
     var body: some View {
@@ -16,6 +17,13 @@ struct GameOverView: View {
                 .font(.system(size: deviceManager.gameOverScoreSize(), weight: .bold))
                 .foregroundColor(.white)
                 .padding(.bottom, deviceManager.isIpad ? 20 : 10)
+            
+            if AdIntegration.isRewardedAdAvailable() && !showRewardedAdView {
+                Button("Extra Life") {
+                    showRewardedAdView = true
+                }
+                .buttonStyle(GameOverButtonStyle(color: .green, deviceManager: deviceManager))
+            }
             
             Button("Play Again") {
                 gameState.resetGame()
@@ -44,6 +52,26 @@ struct GameOverView: View {
                         )
                 )
                 .shadow(color: .red.opacity(0.3), radius: deviceManager.isIpad ? 20 : 10)
+        )
+        .overlay(
+            ZStack {
+                if showRewardedAdView {
+                    Color.black.opacity(0.6)
+                        .edgesIgnoringSafeArea(.all)
+                    
+                    RewardedAdView(
+                        onRewardEarned: {
+                            showRewardedAdView = false
+                            gameState.continueGame()
+                        },
+                        onDecline: {
+                            showRewardedAdView = false
+                        }
+                    )
+                    .transition(.scale)
+                }
+            }
+            .animation(.easeInOut, value: showRewardedAdView)
         )
     }
 }

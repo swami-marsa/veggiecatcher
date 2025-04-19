@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		563084402DB3EB2A00671275 /* VeggieCatcher-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "VeggieCatcher-Info.plist"; sourceTree = "<group>"; };
 		56442D4C2CE999D20078B93A /* VeggieCatcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VeggieCatcher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -32,6 +33,7 @@
 		56442D432CE999D20078B93A = {
 			isa = PBXGroup;
 			children = (
+				563084402DB3EB2A00671275 /* VeggieCatcher-Info.plist */,
 				56442D4E2CE999D20078B93A /* dotrunner */,
 				56442D4D2CE999D20078B93A /* Products */,
 			);
@@ -252,8 +254,10 @@
 				DEVELOPMENT_TEAM = YNVGX8JJCU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "VeggieCatcher-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Veggie Catcher";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -294,8 +298,10 @@
 				DEVELOPMENT_TEAM = YNVGX8JJCU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "VeggieCatcher-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Veggie Catcher";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This identifier will be used to deliver personalized";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
