@@ -40,6 +40,96 @@ class DeviceManager {
         return isIpad ? "splash_background_ipad" : "splash_background"
     }
     
+    // MARK: - Game Play Elements (iPad Optimized)
+    
+    // Vegetable sizes - reduced from 2x to 1.5x for iPad
+    func standardVegetableSize() -> CGFloat {
+        return isLargeIpad ? 120 : (isIpad ? 110 : 80) // 1.5x for iPad instead of 2x
+    }
+    
+    func bombSize() -> CGFloat {
+        return isLargeIpad ? 100 : (isIpad ? 95 : 70) // 1.5x for iPad instead of 2x
+    }
+    
+    func beetrootSize() -> CGFloat {
+        return isLargeIpad ? 135 : (isIpad ? 125 : 90) // 1.5x for iPad instead of 2x
+    }
+    
+    // Game UI elements
+    func heartIconSize() -> CGFloat {
+        return isLargeIpad ? 44 : (isIpad ? 38 : 22) // 2x for iPad
+    }
+    
+    func levelTextSize() -> CGFloat {
+        return isLargeIpad ? 48 : (isIpad ? 40 : 24) // 2x for iPad
+    }
+    
+    func scoreIconSize() -> CGFloat {
+        return isLargeIpad ? 32 : (isIpad ? 28 : 16) // 2x for iPad
+    }
+    
+    func scoreTextSize() -> CGFloat {
+        return isLargeIpad ? 32 : (isIpad ? 28 : 16) // 2x for iPad
+    }
+    
+    func pauseButtonSize() -> CGFloat {
+        return isLargeIpad ? 80 : (isIpad ? 70 : 40) // 2x for iPad
+    }
+    
+    func pauseIconSize() -> CGFloat {
+        return isLargeIpad ? 40 : (isIpad ? 35 : 20) // 2x for iPad
+    }
+    
+    // Game progress UI
+    func progressBarHeight() -> CGFloat {
+        return isLargeIpad ? 20 : (isIpad ? 16 : 8) // 2x for iPad
+    }
+    
+    func progressBarWidth() -> CGFloat {
+        return isLargeIpad ? 560 : (isIpad ? 480 : 240) // 2x for iPad
+    }
+    
+    func missedWarningTextSize() -> CGFloat {
+        return isLargeIpad ? 40 : (isIpad ? 32 : 20) // 2x for iPad
+    }
+    
+    func missedWarningPaddingBottom() -> CGFloat {
+        return isLargeIpad ? 60 : (isIpad ? 50 : 20) // Added more bottom padding for iPad
+    }
+    
+    // Game over and level complete screens
+    func gameOverTitleSize() -> CGFloat {
+        return isLargeIpad ? 64 : (isIpad ? 54 : 32)
+    }
+    
+    func gameOverScoreSize() -> CGFloat {
+        return isLargeIpad ? 48 : (isIpad ? 40 : 24)
+    }
+    
+    func gameOverWidth() -> CGFloat {
+        return isLargeIpad ? 500 : (isIpad ? 450 : 300)
+    }
+    
+    func levelCompleteTitleSize() -> CGFloat {
+        return isLargeIpad ? 64 : (isIpad ? 54 : 36)
+    }
+    
+    func levelCompleteScoreSize() -> CGFloat {
+        return isLargeIpad ? 48 : (isIpad ? 40 : 24)
+    }
+    
+    func levelCompleteHighScoreSize() -> CGFloat {
+        return isLargeIpad ? 40 : (isIpad ? 34 : 20)
+    }
+    
+    func levelCompleteBonusSize() -> CGFloat {
+        return isLargeIpad ? 40 : (isIpad ? 34 : 20)
+    }
+    
+    func levelCompleteButtonWidth() -> CGFloat {
+        return isLargeIpad ? 400 : (isIpad ? 350 : 220)
+    }
+    
     // MARK: - Splash Screen Dimensions
     
     func splashLogoSize() -> CGFloat {

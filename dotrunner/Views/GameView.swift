@@ -4,6 +4,7 @@ struct GameView: View {
     @ObservedObject var gameState: GameState
     @AppStorage("isMusicEnabled") private var isMusicEnabled = true
     @State private var showQuitConfirmation = false
+    private let deviceManager = DeviceManager.shared
     
     var body: some View {
         GeometryReader { geometry in
@@ -18,43 +19,43 @@ struct GameView: View {
                         // Top row: Lives and Level
                         HStack(spacing: 12) {
                             // Lives with enhanced glow effect
-                            HStack(spacing: 4) { // Increased spacing between hearts
+                            HStack(spacing: deviceManager.isIpad ? 8 : 4) { // Increased spacing for iPad
                                 ForEach(0..<5) { index in
                                     Image(systemName: index < gameState.remainingLives ? "heart.fill" : "heart")
                                         .foregroundColor(index < gameState.remainingLives ? .red : .gray)
-                                        .font(.system(size: 22, weight: .bold)) // Increased size and bold
+                                        .font(.system(size: deviceManager.heartIconSize(), weight: .bold))
                                         .shadow(color: .black, radius: 1, x: 1, y: 1) // Sharp shadow
                                         .shadow(color: index < gameState.remainingLives ? .red : .clear, radius: 4, x: 0, y: 0) // Outer glow
                                         .overlay( // Inner highlight
                                             Image(systemName: index < gameState.remainingLives ? "heart.fill" : "heart")
                                                 .foregroundColor(.white)
-                                                .font(.system(size: 22, weight: .bold))
+                                                .font(.system(size: deviceManager.heartIconSize(), weight: .bold))
                                                 .opacity(0.3)
                                                 .offset(x: -1, y: -1)
                                         )
                                 }
                             }
-                            .padding(.leading, 6)
+                            .padding(.leading, deviceManager.isIpad ? 12 : 6)
                             
                             Spacer()
                             
                             // Level and pause
-                            HStack(spacing: 8) {
+                            HStack(spacing: deviceManager.isIpad ? 16 : 8) {
                                 // Enhanced Level display
                                 Text("L\(gameState.level)")
-                                    .font(.system(size: 24, weight: .heavy)) // Larger and heavier
+                                    .font(.system(size: deviceManager.levelTextSize(), weight: .heavy))
                                     .foregroundColor(.white)
                                     .shadow(color: .black, radius: 1, x: 1, y: 1) // Sharp shadow
                                     .overlay( // Text border
                                         Text("L\(gameState.level)")
-                                            .font(.system(size: 24, weight: .heavy))
+                                            .font(.system(size: deviceManager.levelTextSize(), weight: .heavy))
                                             .foregroundColor(.green)
                                             .opacity(0.7)
                                     )
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
+                                    .padding(.horizontal, deviceManager.isIpad ? 20 : 12)
+                                    .padding(.vertical, deviceManager.isIpad ? 10 : 6)
                                     .background(
-                                        RoundedRectangle(cornerRadius: 12)
+                                        RoundedRectangle(cornerRadius: deviceManager.isIpad ? 20 : 12)
                                             .fill(
                                                 LinearGradient(
                                                     colors: [
@@ -80,13 +81,14 @@ struct GameView: View {
                                     }
                                 }) {
                                     Image(systemName: gameState.isPaused ? "play.circle.fill" : "pause.circle.fill")
-                                        .font(.system(size: 32)) // Slightly larger
+                                        .font(.system(size: deviceManager.pauseIconSize())) 
                                         .foregroundColor(.white)
                                         .shadow(color: .black, radius: 2)
                                         .shadow(color: .blue, radius: 4)
+                                        .frame(width: deviceManager.pauseButtonSize(), height: deviceManager.pauseButtonSize())
                                 }
                             }
-                            .padding(.trailing, 6)
+                            .padding(.trailing, deviceManager.isIpad ? 12 : 6)
                         }
                         
                         // Progress bars
@@ -95,23 +97,23 @@ struct GameView: View {
                         // Score display
                         HStack {
                             Spacer()
-                            HStack(spacing: 4) {
+                            HStack(spacing: deviceManager.isIpad ? 8 : 4) {
                                 Image(systemName: "star.fill")
                                     .foregroundColor(.yellow)
-                                    .font(.system(size: 16))
-                                    .glow(color: .orange, radius: 8)
+                                    .font(.system(size: deviceManager.scoreIconSize()))
+                                    .glow(color: .orange, radius: deviceManager.isIpad ? 16 : 8)
                                 
                                 Text("\(gameState.score)")
                                     .foregroundColor(.white)
-                                    .font(.system(size: 16, weight: .bold))
+                                    .font(.system(size: deviceManager.scoreTextSize(), weight: .bold))
                             }
                         }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+                    .padding(.horizontal, deviceManager.isIpad ? 20 : 12)
+                    .padding(.vertical, deviceManager.isIpad ? 16 : 8)
                     .background(
                         // Enhanced 3D colorful background with proper margins
-                        RoundedRectangle(cornerRadius: 15)
+                        RoundedRectangle(cornerRadius: deviceManager.isIpad ? 25 : 15)
                             .fill(
                                 LinearGradient(
                                     colors: [
@@ -124,7 +126,7 @@ struct GameView: View {
                             )
                             .overlay(
                                 // Metallic effect
-                                RoundedRectangle(cornerRadius: 15)
+                                RoundedRectangle(cornerRadius: deviceManager.isIpad ? 25 : 15)
                                     .fill(
                                         LinearGradient(
                                             colors: [
@@ -139,7 +141,7 @@ struct GameView: View {
                             )
                             .overlay(
                                 // Rainbow border
-                                RoundedRectangle(cornerRadius: 15)
+                                RoundedRectangle(cornerRadius: deviceManager.isIpad ? 25 : 15)
                                     .stroke(
                                         LinearGradient(
                                             colors: [
@@ -151,13 +153,13 @@ struct GameView: View {
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         ),
-                                        lineWidth: 2
+                                        lineWidth: deviceManager.isIpad ? 3 : 2
                                     )
                             )
-                            .shadow(color: .blue.opacity(0.5), radius: 5, x: 0, y: 2)
-                            .shadow(color: .purple.opacity(0.3), radius: 10, x: 0, y: 4)
+                            .shadow(color: .blue.opacity(0.5), radius: deviceManager.isIpad ? 8 : 5, x: 0, y: deviceManager.isIpad ? 3 : 2)
+                            .shadow(color: .purple.opacity(0.3), radius: deviceManager.isIpad ? 16 : 10, x: 0, y: deviceManager.isIpad ? 6 : 4)
                     )
-                    .frame(width: min(geometry.size.width - 32, 600)) // Ensure proper width with margins
+                    .frame(width: min(geometry.size.width - (deviceManager.isIpad ? 48 : 32), deviceManager.isIpad ? 800 : 600))
                     
                     Spacer()
                 }
@@ -170,13 +172,13 @@ struct GameView: View {
                             Color.black.opacity(0.7)
                                 .ignoresSafeArea()
                             
-                            VStack(spacing: 25) {
+                            VStack(spacing: deviceManager.isIpad ? 40 : 25) {
                                 Text("Paused")
-                                    .font(.system(size: 32, weight: .bold))
+                                    .font(.system(size: deviceManager.isIpad ? 56 : 32, weight: .bold))
                                     .foregroundColor(.white)
-                                    .glow(color: .blue, radius: 10)
+                                    .glow(color: .blue, radius: deviceManager.isIpad ? 16 : 10)
                                 
-                                VStack(spacing: 15) {
+                                VStack(spacing: deviceManager.isIpad ? 25 : 15) {
                                     Button(action: {
                                         withAnimation {
                                             gameState.isPaused = false
@@ -185,7 +187,7 @@ struct GameView: View {
                                         }
                                     }) {
                                         Text("Resume Game")
-                                            .gameButtonStyle(width: 200, color: .green)
+                                            .gameButtonStyle(width: deviceManager.isIpad ? 350 : 200, color: .green)
                                     }
                                     
                                     Button(action: {
@@ -195,34 +197,34 @@ struct GameView: View {
                                         }
                                     }) {
                                         Text("Main Menu")
-                                            .gameButtonStyle(width: 200, color: .blue)
+                                            .gameButtonStyle(width: deviceManager.isIpad ? 350 : 200, color: .blue)
                                     }
                                     
                                     Button(action: {
                                         exit(0)
                                     }) {
                                         Text("Quit Game")
-                                            .gameButtonStyle(width: 200, color: .red)
+                                            .gameButtonStyle(width: deviceManager.isIpad ? 350 : 200, color: .red)
                                     }
                                 }
                             }
-                            .padding(32)
+                            .padding(deviceManager.isIpad ? 50 : 32)
                             .background(
-                                RoundedRectangle(cornerRadius: 25)
+                                RoundedRectangle(cornerRadius: deviceManager.isIpad ? 40 : 25)
                                     .fill(Color.black.opacity(0.8))
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 25)
+                                        RoundedRectangle(cornerRadius: deviceManager.isIpad ? 40 : 25)
                                             .stroke(
                                                 LinearGradient(
                                                     colors: [.blue.opacity(0.6), .purple.opacity(0.6)],
                                                     startPoint: .topLeading,
                                                     endPoint: .bottomTrailing
                                                 ),
-                                                lineWidth: 2
+                                                lineWidth: deviceManager.isIpad ? 3 : 2
                                             )
                                     )
                             )
-                            .shadow(color: .blue.opacity(0.3), radius: 20)
+                            .shadow(color: .blue.opacity(0.3), radius: deviceManager.isIpad ? 30 : 20)
                         }
                         .transition(.opacity)
                     }
@@ -242,30 +244,31 @@ struct GameView: View {
     }
     
     private func progressBars(geometry: GeometryProxy) -> some View {
-        let barWidth = (geometry.size.width - 48) / 4 // Adjusted spacing
+        let barWidth = (geometry.size.width - (deviceManager.isIpad ? 64 : 48)) / 4 // Adjusted spacing
         
-        return HStack(spacing: 6) { // Reduced spacing between bars
+        return HStack(spacing: deviceManager.isIpad ? 10 : 6) { // Increased spacing for iPad
             // Filter out bomb from progress bars
             ForEach(gameState.currentLevelVegetables.filter { $0 != .bomb }, id: \.self) { vegetable in
-                VStack(spacing: 2) {
+                VStack(spacing: deviceManager.isIpad ? 4 : 2) {
                     // Vegetable icon
                     Image(vegetable.vegetableImage)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 20, height: 20)
+                        .frame(width: deviceManager.isIpad ? 36 : 20, height: deviceManager.isIpad ? 36 : 20)
                     
                     // Progress bar
                     ProgressBar(
                         progress: CGFloat(gameState.vegetableCounts[vegetable] ?? 0) / CGFloat(gameState.targetCount),
                         colors: vegetable.gradientColors,
                         isComplete: (gameState.vegetableCounts[vegetable] ?? 0) >= gameState.targetCount,
-                        width: barWidth - 24
+                        width: barWidth - (deviceManager.isIpad ? 40 : 24),
+                        deviceManager: deviceManager
                     )
                 }
                 .frame(width: barWidth)
-                .padding(.vertical, 4)
+                .padding(.vertical, deviceManager.isIpad ? 8 : 4)
                 .background(Color.black.opacity(0.3))
-                .cornerRadius(8)
+                .cornerRadius(deviceManager.isIpad ? 12 : 8)
             }
         }
     }
@@ -276,9 +279,10 @@ struct ProgressBar: View {
     let colors: [Color]
     let isComplete: Bool
     let width: CGFloat
+    let deviceManager: DeviceManager
     
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: deviceManager.isIpad ? 8 : 4) {
             Capsule()
                 .fill(Color.white.opacity(0.2))
                 .overlay(
@@ -286,11 +290,11 @@ struct ProgressBar: View {
                         .fill(LinearGradient(colors: colors, startPoint: .leading, endPoint: .trailing))
                         .frame(width: width * min(progress, 1.0))
                 )
-                .frame(width: width, height: 6)
+                .frame(width: width, height: deviceManager.progressBarHeight())
             
             if isComplete {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 12))
+                    .font(.system(size: deviceManager.isIpad ? 22 : 12))
                     .foregroundColor(.green)
             }
         }
@@ -301,10 +305,12 @@ struct ProgressBar: View {
 // Helper extension for button styling
 extension Text {
     func gameButtonStyle(width: CGFloat, color: Color) -> some View {
-        self
-            .font(.title3.bold())
+        let deviceManager = DeviceManager.shared
+        
+        return self
+            .font(.system(size: deviceManager.isIpad ? 28 : 20, weight: .bold))
             .foregroundColor(.white)
-            .frame(width: width, height: 50)
+            .frame(width: width, height: deviceManager.isIpad ? 80 : 50)
             .background(
                 LinearGradient(
                     colors: [color.opacity(0.8), color.opacity(0.6)],
@@ -312,11 +318,11 @@ extension Text {
                     endPoint: .trailing
                 )
             )
-            .cornerRadius(25)
+            .cornerRadius(deviceManager.isIpad ? 40 : 25)
             .overlay(
-                RoundedRectangle(cornerRadius: 25)
-                    .stroke(Color.white.opacity(0.5), lineWidth: 1)
+                RoundedRectangle(cornerRadius: deviceManager.isIpad ? 40 : 25)
+                    .stroke(Color.white.opacity(0.5), lineWidth: deviceManager.isIpad ? 2 : 1)
             )
-            .shadow(color: color.opacity(0.5), radius: 5)
+            .shadow(color: color.opacity(0.5), radius: deviceManager.isIpad ? 8 : 5)
     }
 } 

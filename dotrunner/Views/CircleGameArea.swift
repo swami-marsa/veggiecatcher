@@ -10,16 +10,17 @@ struct CircleGameArea: View {
     @State private var showShockwave = false
     @State private var shockwavePosition: CGPoint = .zero
     @State private var showBombFlash = false
+    private let deviceManager = DeviceManager.shared
     private let circleSize: CGFloat = 90
     
     private func getVegetableSize(_ color: CircleColor) -> CGFloat {
         switch color {
         case .bomb:
-            return 70
+            return deviceManager.bombSize()
         case .beetroot:
-            return 90
+            return deviceManager.beetrootSize()
         default:
-            return 80
+            return deviceManager.standardVegetableSize()
         }
     }
     
@@ -60,14 +61,17 @@ struct CircleGameArea: View {
                     // Missed vegetable warning
                     if gameState.showMissedWarning {
                         Text("Missed! \(3 - gameState.missedVegetablesCount) chances left")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.system(size: deviceManager.missedWarningTextSize(), weight: .bold))
                             .foregroundColor(.red)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color.black.opacity(0.6))
-                            .cornerRadius(10)
+                            .padding(.horizontal, deviceManager.isIpad ? 24 : 16)
+                            .padding(.vertical, deviceManager.isIpad ? 12 : 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: deviceManager.isIpad ? 16 : 10)
+                                    .fill(Color.black.opacity(0.7))
+                                    .shadow(color: .black.opacity(0.3), radius: 5)
+                            )
                             .transition(.scale.combined(with: .opacity))
-                            .padding(.bottom, 20)
+                            .padding(.bottom, deviceManager.missedWarningPaddingBottom())
                     }
                     
                     // Game items container
@@ -79,7 +83,7 @@ struct CircleGameArea: View {
                                 .frame(width: getVegetableSize(circle.color))
                                 .shadow(color: .black.opacity(0.3), radius: 5)
                                 .position(
-                                    x: min(max(circle.position.x, circleSize/2), screenWidth - circleSize/2),
+                                    x: min(max(circle.position.x, getVegetableSize(circle.color)/2), screenWidth - getVegetableSize(circle.color)/2),
                                     y: circle.position.y
                                 )
                                 .opacity(circle.opacity)

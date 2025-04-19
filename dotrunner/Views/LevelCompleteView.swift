@@ -4,6 +4,7 @@ struct LevelCompleteView: View {
     @ObservedObject var gameState: GameState
     @Environment(\.dismiss) private var dismiss
     @AppStorage("isMusicEnabled") private var isMusicEnabled = true
+    private let deviceManager = DeviceManager.shared
     
     var body: some View {
         ZStack {
@@ -12,39 +13,41 @@ struct LevelCompleteView: View {
                 .ignoresSafeArea()
             
             // Content
-            VStack(spacing: 25) {
+            VStack(spacing: deviceManager.isIpad ? 40 : 25) {
                 // Level Complete Text
                 Text("Level \(gameState.level) Complete!")
-                    .font(Font.system(size: 36, weight: .bold))
+                    .font(Font.system(size: deviceManager.levelCompleteTitleSize(), weight: .bold))
                     .foregroundColor(.white)
-                    .addGlow(color: .green, radius: 10)
+                    .addGlow(color: .green, radius: deviceManager.isIpad ? 15 : 10)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, deviceManager.isIpad ? 30 : 15)
                 
                 // Score Display
-                VStack(spacing: 15) {
+                VStack(spacing: deviceManager.isIpad ? 25 : 15) {
                     Text("Level Score: \(gameState.score)")
-                        .font(Font.title2.bold())
+                        .font(.system(size: deviceManager.levelCompleteScoreSize(), weight: .bold))
                         .foregroundColor(.yellow)
-                        .addGlow(color: .orange, radius: 5)
+                        .addGlow(color: .orange, radius: deviceManager.isIpad ? 8 : 5)
                     
                     Text("High Score: \(gameState.highScore)")
-                        .font(Font.title3.bold())
+                        .font(.system(size: deviceManager.levelCompleteHighScoreSize(), weight: .bold))
                         .foregroundColor(.white)
-                        .addGlow(color: .blue, radius: 5)
+                        .addGlow(color: .blue, radius: deviceManager.isIpad ? 8 : 5)
                     
                     // Bonus Life Message (if not at max lives)
                     if gameState.remainingLives < 5 {
                         Text("🎁 Bonus Life Awarded!")
-                            .font(Font.title3.bold())
+                            .font(.system(size: deviceManager.levelCompleteBonusSize(), weight: .bold))
                             .foregroundColor(.green)
-                            .addGlow(color: .green, radius: 8)
-                            .padding(.top, 5)
+                            .addGlow(color: .green, radius: deviceManager.isIpad ? 12 : 8)
+                            .padding(.top, deviceManager.isIpad ? 10 : 5)
                             .transition(.scale.combined(with: .opacity))
                     }
                 }
-                .padding(.vertical, 20)
+                .padding(.vertical, deviceManager.isIpad ? 30 : 20)
                 
                 // Buttons
-                VStack(spacing: 15) {
+                VStack(spacing: deviceManager.isIpad ? 25 : 15) {
                     Button {
                         withAnimation {
                             gameState.startNextLevel()
@@ -54,20 +57,20 @@ struct LevelCompleteView: View {
                         }
                     } label: {
                         Text("Next Level")
-                            .font(Font.title2.bold())
+                            .font(.system(size: deviceManager.isIpad ? 28 : 20, weight: .bold))
                             .foregroundColor(.white)
-                            .frame(width: 200, height: 50)
+                            .frame(width: deviceManager.levelCompleteButtonWidth(), height: deviceManager.isIpad ? 80 : 50)
                             .background(
                                 LinearGradient(colors: [.green.opacity(0.8), .green.opacity(0.6)],
                                              startPoint: .leading,
                                              endPoint: .trailing)
                             )
-                            .cornerRadius(25)
+                            .cornerRadius(deviceManager.isIpad ? 40 : 25)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 25)
-                                    .stroke(Color.white.opacity(0.5), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: deviceManager.isIpad ? 40 : 25)
+                                    .stroke(Color.white.opacity(0.5), lineWidth: deviceManager.isIpad ? 2 : 1)
                             )
-                            .shadow(color: .green.opacity(0.5), radius: 5)
+                            .shadow(color: .green.opacity(0.5), radius: deviceManager.isIpad ? 8 : 5)
                     }
                     
                     Button {
@@ -84,24 +87,41 @@ struct LevelCompleteView: View {
                         }
                     } label: {
                         Text("Home")
-                            .font(Font.title2.bold())
+                            .font(.system(size: deviceManager.isIpad ? 28 : 20, weight: .bold))
                             .foregroundColor(.white)
-                            .frame(width: 200, height: 50)
+                            .frame(width: deviceManager.levelCompleteButtonWidth(), height: deviceManager.isIpad ? 80 : 50)
                             .background(
                                 LinearGradient(colors: [.blue.opacity(0.8), .blue.opacity(0.6)],
                                              startPoint: .leading,
                                              endPoint: .trailing)
                             )
-                            .cornerRadius(25)
+                            .cornerRadius(deviceManager.isIpad ? 40 : 25)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 25)
-                                    .stroke(Color.white.opacity(0.5), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: deviceManager.isIpad ? 40 : 25)
+                                    .stroke(Color.white.opacity(0.5), lineWidth: deviceManager.isIpad ? 2 : 1)
                             )
-                            .shadow(color: .blue.opacity(0.5), radius: 5)
+                            .shadow(color: .blue.opacity(0.5), radius: deviceManager.isIpad ? 8 : 5)
                     }
                 }
             }
-            .padding()
+            .padding(deviceManager.isIpad ? 40 : 20)
+            .background(
+                RoundedRectangle(cornerRadius: deviceManager.isIpad ? 30 : 20)
+                    .fill(Color.black.opacity(0.7))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: deviceManager.isIpad ? 30 : 20)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [.green.opacity(0.7), .blue.opacity(0.5)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ),
+                                lineWidth: deviceManager.isIpad ? 3 : 2
+                            )
+                    )
+                    .shadow(color: .green.opacity(0.3), radius: deviceManager.isIpad ? 20 : 10)
+            )
+            .frame(width: min(UIScreen.main.bounds.width - (deviceManager.isIpad ? 100 : 40), deviceManager.isIpad ? 700 : 500))
         }
     }
 } 
