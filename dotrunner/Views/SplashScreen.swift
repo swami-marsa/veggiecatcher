@@ -16,6 +16,28 @@ struct SplashScreen: View {
     
     private let deviceManager = DeviceManager.shared
     
+    // MARK: - Device-specific vegetable sizes
+    
+    // Get the correct carrot size for current device
+    private var carrotSize: CGFloat {
+        return deviceManager.isIpad ? 70 : 50 // Only change iPad size
+    }
+    
+    // Get the correct leaf size for current device
+    private var leafSize: CGFloat {
+        return deviceManager.isIpad ? 60 : 45 // Only change iPad size
+    }
+    
+    // Get the correct apple size for current device
+    private var appleSize: CGFloat {
+        return deviceManager.isIpad ? 65 : 48 // Only change iPad size
+    }
+    
+    // Get the correct leaf circle size for current device
+    private var leafCircleSize: CGFloat {
+        return deviceManager.isIpad ? 55 : 40 // Only change iPad size
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -30,7 +52,7 @@ struct SplashScreen: View {
                 ZStack {
                     // Carrot
                     Image(systemName: "carrot")
-                        .font(.system(size: deviceManager.isIpad ? 70 : 50))
+                        .font(.system(size: carrotSize))
                         .foregroundColor(.orange)
                         .shadow(color: .black, radius: 2)
                         .offset(veggie1Offset)
@@ -39,7 +61,7 @@ struct SplashScreen: View {
                     
                     // Leaf (representing vegetables)
                     Image(systemName: "leaf.fill")
-                        .font(.system(size: deviceManager.isIpad ? 60 : 45))
+                        .font(.system(size: leafSize))
                         .foregroundColor(.green)
                         .shadow(color: .black, radius: 2)
                         .offset(veggie2Offset)
@@ -48,7 +70,7 @@ struct SplashScreen: View {
                     
                     // Apple for fruit
                     Image(systemName: "apple.logo")
-                        .font(.system(size: deviceManager.isIpad ? 65 : 48))
+                        .font(.system(size: appleSize))
                         .foregroundColor(.red)
                         .shadow(color: .black, radius: 2)
                         .offset(veggie3Offset)
@@ -57,7 +79,7 @@ struct SplashScreen: View {
                     
                     // One more vegetable
                     Image(systemName: "leaf.circle.fill")
-                        .font(.system(size: deviceManager.isIpad ? 55 : 40))
+                        .font(.system(size: leafCircleSize))
                         .foregroundColor(.green.opacity(0.8))
                         .shadow(color: .black, radius: 2)
                         .offset(veggie4Offset)
@@ -167,12 +189,22 @@ struct SplashScreen: View {
                 bounceVeggies = true
             }
             
-            // Randomize veggie positions
-            let size = deviceManager.isIpad ? 200.0 : 150.0
-            veggie1Offset = CGSize(width: -size, height: -size)
-            veggie2Offset = CGSize(width: size, height: -size * 0.8)
-            veggie3Offset = CGSize(width: -size * 0.7, height: size * 0.7)
-            veggie4Offset = CGSize(width: size * 0.8, height: size * 0.6)
+            // Randomize veggie positions - calculate size based on device
+            if deviceManager.isIpad {
+                // iPad-specific positions - larger and more spread out
+                let size = 200.0
+                veggie1Offset = CGSize(width: -size, height: -size)
+                veggie2Offset = CGSize(width: size, height: -size * 0.8)
+                veggie3Offset = CGSize(width: -size * 0.7, height: size * 0.7)
+                veggie4Offset = CGSize(width: size * 0.8, height: size * 0.6)
+            } else {
+                // iPhone-specific positions - keep exactly as they were
+                let size = 150.0
+                veggie1Offset = CGSize(width: -size, height: -size)
+                veggie2Offset = CGSize(width: size, height: -size * 0.8)
+                veggie3Offset = CGSize(width: -size * 0.7, height: size * 0.7)
+                veggie4Offset = CGSize(width: size * 0.8, height: size * 0.6)
+            }
         }
         
         // Continuous rotation animation

@@ -8,7 +8,7 @@ struct HomeScreen: View {
     
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
+        ZStack {
                 // Background image with proper scaling for iPad
                 Image(deviceManager.homeBackgroundImage())
                     .interpolation(.high)
@@ -239,143 +239,143 @@ struct HomeScreen: View {
                 .frame(height: 100) // <-- CHANGE THIS VALUE to move controls further down
                 
             // Controls section for iPhone
-            HStack {
+                HStack {
                 // High Score Section
-                if gameState.highScore > 0 {
-                    HStack(spacing: 8) {
-                        Image(systemName: "trophy.fill")
+                    if gameState.highScore > 0 {
+                        HStack(spacing: 8) {
+                            Image(systemName: "trophy.fill")
                             .font(.system(size: deviceManager.homeTrophyIconSize()))
-                            .foregroundColor(.white)
+                                .foregroundColor(.white)
                             .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
-                        
-                        Text("\(gameState.highScore)")
+                            
+                            Text("\(gameState.highScore)")
                             .font(.system(size: deviceManager.homeTrophyTextSize(), weight: .heavy))
-                            .minimumScaleFactor(0.5)
-                            .lineLimit(1)
-                            .foregroundColor(.white)
+                                .minimumScaleFactor(0.5)
+                                .lineLimit(1)
+                                .foregroundColor(.white)
                             .shadow(color: .black.opacity(0.5), radius: 3, x: 1, y: 1)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
                     .frame(minWidth: deviceManager.homeScoreFrameMinWidth())
-                    .background(
+                        .background(
                         RoundedRectangle(cornerRadius: deviceManager.homeTrophyBackgroundRadius())
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color(red: 0.9, green: 0.5, blue: 0.1),  // Orange gradient
-                                        Color(red: 0.8, green: 0.3, blue: 0.0)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            Color(red: 0.9, green: 0.5, blue: 0.1),  // Orange gradient
+                                            Color(red: 0.8, green: 0.3, blue: 0.0)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
                                 )
-                            )
                             .shadow(color: .black.opacity(0.5), radius: 5, x: 2, y: 2) // 3D shadow
-                    )
+                        )
                 } else {
                     // Show a placeholder for consistent layout
                     Spacer()
                         .frame(width: deviceManager.homeScoreFrameMinWidth())
+                    }
+                    
+                    Spacer()
+                    
+                // Sound Controls
+                    HStack(spacing: 15) {
+                        // Music Toggle
+                        Button(action: {
+                            isMusicEnabled.toggle()
+                            SoundManager.shared.setMusicEnabled(isMusicEnabled)
+                            if isMusicEnabled {
+                            SoundManager.shared.playBackgroundMusic(Constants.Sounds.gameHome)
+                            }
+                        }) {
+                            Image(systemName: isMusicEnabled ? "music.note" : "speaker.slash.circle.fill")
+                            .font(.system(size: deviceManager.homeSoundIconSize(), weight: .bold))
+                                .foregroundColor(.white)
+                            .frame(width: deviceManager.homeSoundButtonSize(), height: deviceManager.homeSoundButtonSize())
+                                .background(
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color(red: 0.9, green: 0.3, blue: 0.1),
+                                                    Color(red: 0.7, green: 0.1, blue: 0.0)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                )
+                                .overlay(
+                                    Circle()
+                                        .stroke(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color.white.opacity(0.6),
+                                                    Color.white.opacity(0.2),
+                                                    Color.black.opacity(0.2)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 2
+                                        )
+                                )
+                            .shadow(color: .black.opacity(0.5), radius: 5, x: 2, y: 2) // 3D shadow
+                                .scaleEffect(isMusicEnabled ? 1.0 : 0.9)
+                        }
+                        
+                        // Effects Toggle
+                        Button(action: {
+                            isSoundEffectsEnabled.toggle()
+                            if isSoundEffectsEnabled {
+                            SoundManager.shared.playSound(Constants.Sounds.swipe)
+                            }
+                            SoundManager.shared.setEffectsEnabled(isSoundEffectsEnabled)
+                        }) {
+                            Image(systemName: isSoundEffectsEnabled ? "speaker.wave.3.fill" : "speaker.slash.circle.fill")
+                            .font(.system(size: deviceManager.homeSoundIconSize(), weight: .bold))
+                                .foregroundColor(.white)
+                            .frame(width: deviceManager.homeSoundButtonSize(), height: deviceManager.homeSoundButtonSize())
+                                .background(
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color(red: 0.2, green: 0.6, blue: 0.1),
+                                                    Color(red: 0.1, green: 0.4, blue: 0.0)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                )
+                                .overlay(
+                                    Circle()
+                                        .stroke(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color.white.opacity(0.6),
+                                                    Color.white.opacity(0.2),
+                                                    Color.black.opacity(0.2)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 2
+                                        )
+                                )
+                            .shadow(color: .black.opacity(0.5), radius: 5, x: 2, y: 2) // 3D shadow
+                                .scaleEffect(isSoundEffectsEnabled ? 1.0 : 0.9)
+                    }
                 }
+                }
+                .padding(.horizontal, 20)
                 
                 Spacer()
                 
-                // Sound Controls
-                HStack(spacing: 15) {
-                    // Music Toggle
-                    Button(action: {
-                        isMusicEnabled.toggle()
-                        SoundManager.shared.setMusicEnabled(isMusicEnabled)
-                        if isMusicEnabled {
-                            SoundManager.shared.playBackgroundMusic(Constants.Sounds.gameHome)
-                        }
-                    }) {
-                        Image(systemName: isMusicEnabled ? "music.note" : "speaker.slash.circle.fill")
-                            .font(.system(size: deviceManager.homeSoundIconSize(), weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(width: deviceManager.homeSoundButtonSize(), height: deviceManager.homeSoundButtonSize())
-                            .background(
-                                Circle()
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [
-                                                Color(red: 0.9, green: 0.3, blue: 0.1),
-                                                Color(red: 0.7, green: 0.1, blue: 0.0)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.white.opacity(0.6),
-                                                Color.white.opacity(0.2),
-                                                Color.black.opacity(0.2)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 2
-                                    )
-                            )
-                            .shadow(color: .black.opacity(0.5), radius: 5, x: 2, y: 2) // 3D shadow
-                            .scaleEffect(isMusicEnabled ? 1.0 : 0.9)
-                    }
-                    
-                    // Effects Toggle
-                    Button(action: {
-                        isSoundEffectsEnabled.toggle()
-                        if isSoundEffectsEnabled {
-                            SoundManager.shared.playSound(Constants.Sounds.swipe)
-                        }
-                        SoundManager.shared.setEffectsEnabled(isSoundEffectsEnabled)
-                    }) {
-                        Image(systemName: isSoundEffectsEnabled ? "speaker.wave.3.fill" : "speaker.slash.circle.fill")
-                            .font(.system(size: deviceManager.homeSoundIconSize(), weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(width: deviceManager.homeSoundButtonSize(), height: deviceManager.homeSoundButtonSize())
-                            .background(
-                                Circle()
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [
-                                                Color(red: 0.2, green: 0.6, blue: 0.1),
-                                                Color(red: 0.1, green: 0.4, blue: 0.0)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.white.opacity(0.6),
-                                                Color.white.opacity(0.2),
-                                                Color.black.opacity(0.2)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 2
-                                    )
-                            )
-                            .shadow(color: .black.opacity(0.5), radius: 5, x: 2, y: 2) // 3D shadow
-                            .scaleEffect(isSoundEffectsEnabled ? 1.0 : 0.9)
-                    }
-                }
-            }
-            .padding(.horizontal, 20)
-            
-            Spacer()
-            
-            // Game Buttons
+                // Game Buttons
             gameButtons(gameState: gameState)
                 .padding(.bottom, 50)
         }
@@ -386,12 +386,12 @@ struct HomeScreen: View {
     private func gameButtons(gameState: GameState) -> some View {
         VStack(spacing: deviceManager.isIpad ? 40 : 25) {
             if gameState.lastPlayedLevel >= 1 {
-                Button {
-                    withAnimation {
-                        gameState.continueGame()
-                        gameState.isHomeScreen = false
-                    }
-                } label: {
+                        Button {
+                            withAnimation {
+                                gameState.continueGame()
+                                gameState.isHomeScreen = false
+                            }
+                        } label: {
                     HStack {
                         Image(systemName: "arrow.triangle.2.circlepath")
                             .font(.system(size: deviceManager.homeButtonTextSize()))
@@ -411,14 +411,14 @@ struct HomeScreen: View {
                     )
                 }
                 .padding(.bottom, deviceManager.isIpad ? 20 : 10)
-            }
-            
-            Button {
-                withAnimation {
-                    gameState.resetGame()
-                    gameState.isHomeScreen = false
-                }
-            } label: {
+                    }
+                    
+                    Button {
+                        withAnimation {
+                            gameState.resetGame()
+                            gameState.isHomeScreen = false
+                        }
+                    } label: {
                 HStack {
                     Image(systemName: "play.fill")
                         .font(.system(size: deviceManager.homeButtonTextSize()))
