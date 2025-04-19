@@ -4,66 +4,71 @@ struct SplashScreen: View {
     @ObservedObject var gameState: GameState
     @State private var isAnimating = false
     @State private var showMainContent = false
+    private let deviceManager = DeviceManager.shared
     
     var body: some View {
-        ZStack {
-            // Background image
-            Image("splash_background") // Dimensions: 1290x2796 px (iPhone 15 Pro Max)
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-            
-            // Animated logo container
-            VStack(spacing: 20) {
-                // App icon instead of game logo
-                Image(uiImage: UIImage(named: "AppIcon") ?? UIImage())
+        GeometryReader { geometry in
+            ZStack {
+                // Background image with device-specific handling
+                Image(deviceManager.splashBackgroundImage())
                     .resizable()
-                    .scaledToFit()
-                    .frame(width: 200, height: 200)
-                    .cornerRadius(40) // Match iOS app icon corner radius
-                    .scaleEffect(isAnimating ? 1.1 : 0.9)
-                    .opacity(isAnimating ? 1 : 0.5)
-                    .animation(
-                        Animation.easeInOut(duration: 1.0)
-                            .repeatForever(autoreverses: true),
-                        value: isAnimating
-                    )
+                    .aspectRatio(contentMode: .fill) // Always use fill for splash
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .ignoresSafeArea()
                 
-                // Game title
-                Text("Veggie")
-                    .font(.system(size: 60, weight: .bold))
-                    .foregroundColor(.white)
-                    .opacity(isAnimating ? 1 : 0)
-                    .offset(y: isAnimating ? 0 : 20)
-                
-                Text("Catcher")
-                    .font(.system(size: 40, weight: .semibold))
-                    .foregroundColor(.green)
-                    .opacity(isAnimating ? 1 : 0)
-                    .offset(y: isAnimating ? 0 : 20)
-                
-                // Loading indicator
-                ZStack {
-                    Circle()
-                        .stroke(lineWidth: 4)
-                        .frame(width: 40, height: 40)
-                        .foregroundColor(.gray.opacity(0.3))
-                    
-                    Circle()
-                        .trim(from: 0, to: 0.7)
-                        .stroke(lineWidth: 4)
-                        .frame(width: 40, height: 40)
-                        .foregroundColor(.white)
-                        .rotationEffect(Angle(degrees: isAnimating ? 360 : 0))
+                // Animated logo container
+                VStack(spacing: deviceManager.isIpad ? 30 : 20) {
+                    // App icon instead of game logo
+                    Image(uiImage: UIImage(named: "AppIcon") ?? UIImage())
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: deviceManager.splashLogoSize(), height: deviceManager.splashLogoSize())
+                        .cornerRadius(deviceManager.splashLogoCornerRadius())
+                        .scaleEffect(isAnimating ? 1.1 : 0.9)
+                        .opacity(isAnimating ? 1 : 0.5)
                         .animation(
-                            Animation.linear(duration: 1)
-                                .repeatForever(autoreverses: false),
+                            Animation.easeInOut(duration: 1.0)
+                                .repeatForever(autoreverses: true),
                             value: isAnimating
                         )
+                    
+                    // Game title
+                    Text("Veggie")
+                        .font(.system(size: deviceManager.splashTitleSize(), weight: .bold))
+                        .foregroundColor(.white)
+                        .opacity(isAnimating ? 1 : 0)
+                        .offset(y: isAnimating ? 0 : 20)
+                    
+                    Text("Catcher")
+                        .font(.system(size: deviceManager.splashSubtitleSize(), weight: .semibold))
+                        .foregroundColor(.green)
+                        .opacity(isAnimating ? 1 : 0)
+                        .offset(y: isAnimating ? 0 : 20)
+                    
+                    // Loading indicator
+                    ZStack {
+                        Circle()
+                            .stroke(lineWidth: deviceManager.splashLoaderStrokeWidth())
+                            .frame(width: deviceManager.splashLoaderSize(), height: deviceManager.splashLoaderSize())
+                            .foregroundColor(.gray.opacity(0.3))
+                        
+                        Circle()
+                            .trim(from: 0, to: 0.7)
+                            .stroke(lineWidth: deviceManager.splashLoaderStrokeWidth())
+                            .frame(width: deviceManager.splashLoaderSize(), height: deviceManager.splashLoaderSize())
+                            .foregroundColor(.white)
+                            .rotationEffect(Angle(degrees: isAnimating ? 360 : 0))
+                            .animation(
+                                Animation.linear(duration: 1)
+                                    .repeatForever(autoreverses: false),
+                                value: isAnimating
+                            )
+                    }
+                    .opacity(isAnimating ? 1 : 0)
                 }
-                .opacity(isAnimating ? 1 : 0)
             }
         }
+        .ignoresSafeArea()
         .onAppear {
             isAnimating = true
             
