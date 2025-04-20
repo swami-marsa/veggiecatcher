@@ -67,6 +67,12 @@ class LifeManager {
         saveLives()
     }
     
+    /// Reset missed vegetable counter to zero
+    func resetMissedVegetablesCount() {
+        missedVegetablesCount = 0
+        isShowingMissedWarning = false
+    }
+    
     /// Set exact number of lives (for continuing games)
     func setLives(_ lives: Int) {
         remainingLives = max(0, min(lives, Constants.Game.maxLives))

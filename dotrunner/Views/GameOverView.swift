@@ -62,7 +62,20 @@ struct GameOverView: View {
                     RewardedAdView(
                         onRewardEarned: {
                             showRewardedAdView = false
-                            gameState.continueGame()
+                            
+                            // First refill lives
+                            gameState.refillAllLives()
+                            
+                            // Then explicitly tell the game to continue (this is the crucial part)
+                            withAnimation {
+                                // This dismiss call is critical to remove the game over overlay
+                                gameState.isGameOver = false
+                            }
+                            
+                            // Restart gameplay music
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                SoundManager.shared.playBackgroundMusic("game_play")
+                            }
                         },
                         onDecline: {
                             showRewardedAdView = false

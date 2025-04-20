@@ -58,41 +58,53 @@ struct CircleGameArea: View {
                     Color.clear
                         .frame(height: 60)
                     
-                    // Missed vegetable warning
-                    if gameState.showMissedWarning {
-                        Text("Missed! \(3 - gameState.missedVegetablesCount) chances left")
-                            .font(.system(size: deviceManager.missedWarningTextSize(), weight: .bold))
-                            .foregroundColor(.red)
-                            .padding(.horizontal, deviceManager.isIpad ? 24 : 16)
-                            .padding(.vertical, deviceManager.isIpad ? 12 : 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: deviceManager.isIpad ? 16 : 10)
-                                    .fill(Color.black.opacity(0.7))
-                                    .shadow(color: .black.opacity(0.3), radius: 5)
-                            )
-                            .transition(.scale.combined(with: .opacity))
-                            .padding(.bottom, deviceManager.missedWarningPaddingBottom())
-                    }
-                    
-                    // Game items container
+                    // Missed vegetable warning - IMPROVED VERSION
+                    // Use an overlay instead of a full view to avoid layout shifts
                     ZStack {
-                        ForEach(gameState.circles) { circle in
-                            Image(circle.color.vegetableImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: getVegetableSize(circle.color))
-                                .shadow(color: .black.opacity(0.3), radius: 5)
-                                .position(
-                                    x: min(max(circle.position.x, getVegetableSize(circle.color)/2), screenWidth - getVegetableSize(circle.color)/2),
-                                    y: circle.position.y
-                                )
-                                .opacity(circle.opacity)
-                                .scaleEffect(circle.scale)
-                                .onTapGesture {
-                                    if !gameState.isPaused && !gameState.isGameOver {
-                                        handleCircleCollection(circle)
+                        // Game items container with missed vegetable indicator overlay
+                        ZStack(alignment: .top) {
+                            // Game items container
+                            ForEach(gameState.circles) { circle in
+                                Image(circle.color.vegetableImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: getVegetableSize(circle.color))
+                                    .shadow(color: .black.opacity(0.3), radius: 5)
+                                    .position(
+                                        x: min(max(circle.position.x, getVegetableSize(circle.color)/2), screenWidth - getVegetableSize(circle.color)/2),
+                                        y: circle.position.y
+                                    )
+                                    .opacity(circle.opacity)
+                                    .scaleEffect(circle.scale)
+                                    .onTapGesture {
+                                        if !gameState.isPaused && !gameState.isGameOver {
+                                            handleCircleCollection(circle)
+                                        }
+                                    }
+                            }
+                            
+                            // Subtle missed indicator at top edge to avoid blocking gameplay
+                            if gameState.showMissedWarning {
+                                HStack(spacing: 6) {
+                                    ForEach(0..<3) { index in
+                                        Circle()
+                                            .fill(index < gameState.missedVegetablesCount ? Color.red : Color.red.opacity(0.3))
+                                            .frame(width: deviceManager.isIpad ? 16 : 12, height: deviceManager.isIpad ? 16 : 12)
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(Color.white, lineWidth: 1)
+                                            )
                                     }
                                 }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.black.opacity(0.5))
+                                )
+                                .padding(.top, 10)
+                                .transition(.opacity)
+                            }
                         }
                         
                         // Shockwave effect
@@ -162,6 +174,9 @@ struct CircleGameArea: View {
             if isGameOver {
                 stopFallingAnimation()
                 stopSpawning()
+            } else {
+                startFallingAnimation()
+                startSpawning(screenWidth: UIScreen.main.bounds.width)
             }
         }
         .onChange(of: gameState.level) { _, _ in

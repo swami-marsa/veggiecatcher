@@ -68,6 +68,15 @@ class LevelManager {
         resetVegetableCounts()
     }
     
+    /// Public method to reset vegetable counters
+    func resetVegetableCounters() {
+        print("Resetting vegetable counters for level \(currentLevel)")
+        resetVegetableCounts()
+        
+        // Re-select vegetables if needed to ensure we have fresh selection
+        selectVegetablesForLevel()
+    }
+    
     /// Set the level directly (for continuing saved games)
     func setLevel(_ level: Int) {
         currentLevel = max(1, level)

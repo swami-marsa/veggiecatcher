@@ -18,6 +18,20 @@ class GameState: ObservableObject {
     @Published var showBombEffect: Bool = false
     @Published var screenShakeOffset: CGSize = .zero
     
+    // MARK: - Timer Properties
+    
+    /// Timer for animating falling circles
+    private var fallingTimer: Timer?
+    
+    /// Timer for spawning new circles
+    private var spawningTimer: Timer?
+    
+    /// Timer for hiding warning messages
+    private var warningTimer: Timer?
+    
+    /// Timestamp for last game update
+    private var lastUpdateTime: Date = Date()
+    
     // MARK: - Managers
     
     /// Manager for level progression
@@ -158,27 +172,110 @@ class GameState: ObservableObject {
     
     /// Continue a previously saved game
     func continueGame() {
-        // Get saved values
-        let lastLevel = scoreManager.lastPlayedLevel
+        print("DEBUG: Continuing game from lives reward")
+        
+        // Get the saved level
+        let savedLevel = scoreManager.lastPlayedLevel
+        print("DEBUG: Continuing from saved level: \(savedLevel)")
+        
+        // Get the saved score
         let savedScore = scoreManager.continuationScore
-        let savedLives = lifeManager.remainingLives
+        print("DEBUG: Continuing with saved score: \(savedScore)")
         
-        print("DEBUG: continueGame - lastLevel = \(lastLevel), savedScore = \(savedScore), savedLives = \(savedLives)")
+        // Create a new level manager with the correct level
+        // Important: When continuing, we use the saved level + 1
+        // This matches the UI that shows "Level \(max(2, gameState.lastPlayedLevel + 1))"
+        let continueLevel = max(2, savedLevel + 1)
+        self.levelManager = LevelManager(startingLevel: continueLevel)
         
-        // Reset game but preserve progress
-        resetGame()
-        
-        // Restore saved values
+        // Restore the saved score
         scoreManager.setScore(savedScore)
-        levelManager.setLevel(lastLevel + 1) // Continue at next level
-        lifeManager.setLives(savedLives)
         
-        print("DEBUG: continueGame - Set level to \(levelManager.currentLevel)")
+        // Update score manager to match the continued level
+        scoreManager.updateHighestLevel(continueLevel)
         
-        // Start the continued game
-        isHomeScreen = false
-        SoundManager.shared.stopAllSounds()
-        SoundManager.shared.playBackgroundMusic(Constants.Sounds.gamePlay)
+        // Reset lives
+        self.lifeManager.resetLives()
+        self.isGameOver = false
+        self.isPaused = false
+        
+        // CRITICAL: Ensure level complete is set to false
+        // Otherwise the game will show the level complete screen incorrectly
+        self.isLevelComplete = false
+        
+        // Ensure we properly reset all falling vegetables state
+        self.circles = []
+        
+        // Reset all timers to ensure proper game flow
+        cancelAllTimers()
+        
+        // Restart the game timers and systems
+        startFallingTimer()
+        startSpawningTimer()
+        
+        // Make sure all time-based systems are ready
+        self.lastUpdateTime = Date()
+        
+        // Reset warning display
+        self.showMissedWarning = false
+        lifeManager.resetMissedVegetablesCount()
+        
+        // Debug current state
+        print("DEBUG: Game continued with level: \(levelManager.currentLevel) and score: \(scoreManager.score)")
+    }
+    
+    private func cancelAllTimers() {
+        fallingTimer?.invalidate()
+        fallingTimer = nil
+        
+        spawningTimer?.invalidate()
+        spawningTimer = nil
+        
+        warningTimer?.invalidate()
+        warningTimer = nil
+    }
+    
+    /// Start the falling animation timer
+    private func startFallingTimer() {
+        fallingTimer?.invalidate()
+        
+        fallingTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { [weak self] _ in
+            guard let self = self, !self.isPaused && !self.isGameOver && !self.isLevelComplete else { return }
+            
+            // Update falling animations
+            self.updateFallingCircles()
+        }
+        
+        RunLoop.current.add(fallingTimer!, forMode: .common)
+    }
+    
+    /// Start the circle spawning timer
+    private func startSpawningTimer() {
+        spawningTimer?.invalidate()
+        
+        // Adjust spawn interval based on level
+        let baseInterval = max(1.3 - (Double(level) * 0.05), 0.6)
+        
+        spawningTimer = Timer.scheduledTimer(withTimeInterval: baseInterval, repeats: true) { [weak self] _ in
+            guard let self = self, !self.isPaused && !self.isGameOver && !self.isLevelComplete else { return }
+            
+            // Spawn new circles
+            self.spawnCircle()
+        }
+        
+        RunLoop.current.add(spawningTimer!, forMode: .common)
+    }
+    
+    /// Update falling circles positions
+    private func updateFallingCircles() {
+        // Implement falling logic if needed
+        // This stub is here to satisfy the method call
+    }
+    
+    /// Spawn a new circle
+    private func spawnCircle() {
+        // Implement spawning logic if needed
+        // This stub is here to satisfy the method call
     }
     
     /// Register when the player misses a vegetable
@@ -205,6 +302,39 @@ class GameState: ObservableObject {
         // Auto-hide warning after delay
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.UI.missWarningDuration) {
             self.lifeManager.hideEffects()
+        }
+    }
+    
+    /// Refill all lives to maximum (5)
+    func refillAllLives() {
+        // Set lives to maximum
+        lifeManager.setLives(5)
+        
+        // Play regeneration sound if available
+        SoundManager.shared.playSound("powerup")
+        
+        // Log the lives now available
+        print("Lives refilled to maximum (5). Current lives: \(lifeManager.remainingLives)")
+        
+        // If we're in game over state, we need to reset the game state to continue
+        if isGameOver {
+            print("Resetting game state to continue after game over")
+            
+            // Reset game state but preserve level and score
+            circles = []
+            spawnCounter = 0
+            
+            // Reset vegetable counters
+            levelManager.resetVegetableCounters()
+            
+            // Make sure current level and score are preserved
+            let currentLevel = levelManager.currentLevel
+            let currentScore = scoreManager.score
+            print("Preserving level: \(currentLevel), score: \(currentScore)")
+            
+            // Save state to UserDefaults
+            scoreManager.saveLastPlayedLevel(currentLevel)
+            scoreManager.saveContinuationScore(currentScore)
         }
     }
     
@@ -243,10 +373,13 @@ class GameState: ObservableObject {
         scoreManager.saveContinuationScore()
         
         // Debug lastPlayedLevel
-        print("DEBUG: Saved lastPlayedLevel = \(levelManager.currentLevel)")
+        print("DEBUG: startNextLevel - Saved lastPlayedLevel = \(levelManager.currentLevel)")
         
         // Advance to next level
         levelManager.advanceToNextLevel()
+        
+        // Debug - confirm new level
+        print("DEBUG: startNextLevel - Advanced to level \(levelManager.currentLevel)")
         
         // Update highest level reached
         scoreManager.updateHighestLevel(levelManager.currentLevel)
@@ -274,12 +407,19 @@ class GameState: ObservableObject {
     func goToHome() {
         // Save game state
         if !isGameOver {
-            print("DEBUG: goToHome - Saving lastPlayedLevel = \(levelManager.currentLevel)")
+            print("DEBUG: goToHome - Original level = \(levelManager.currentLevel), isLevelComplete = \(isLevelComplete)")
             
-            // Fix: Ensure the level is properly saved even after level completion
-            // This is critical for the continue button to appear
-            let levelToSave = isLevelComplete ? levelManager.currentLevel : levelManager.currentLevel
-            scoreManager.saveLastPlayedLevel(levelToSave)
+            // Logic for saving the level:
+            // 1. If we're coming from a completed level, save the current level
+            // 2. Otherwise, save current level minus 1 (because continue will add 1)
+            // This ensures Continue button shows the correct next level
+            let levelToSave = isLevelComplete ? levelManager.currentLevel : levelManager.currentLevel - 1
+            
+            // Make sure we don't save a level below 1
+            let safeLevelToSave = max(1, levelToSave)
+            
+            print("DEBUG: goToHome - Saving lastPlayedLevel = \(safeLevelToSave)")
+            scoreManager.saveLastPlayedLevel(safeLevelToSave)
             scoreManager.saveContinuationScore()
             
             // Force UserDefaults to synchronize
@@ -300,6 +440,7 @@ class GameState: ObservableObject {
         isHomeScreen = true
         isPaused = false
         isGameOver = false
+        isLevelComplete = false  // Make sure to reset the level complete flag
         
         // Stop all sounds
         SoundManager.shared.stopAllSounds()
