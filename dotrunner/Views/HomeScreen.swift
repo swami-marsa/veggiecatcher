@@ -27,6 +27,7 @@ struct HomeScreen: View {
             }
         }
         .ignoresSafeArea()
+        .statusBar(hidden: true)
         .onAppear {
             // Start playing home screen music if enabled
             if isMusicEnabled {

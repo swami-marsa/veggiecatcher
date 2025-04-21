@@ -236,6 +236,7 @@ struct GameView: View {
                 }
             }
         }
+        .statusBar(hidden: true)
         .onAppear {
             if isMusicEnabled {
                 SoundManager.shared.playBackgroundMusic("game_play")

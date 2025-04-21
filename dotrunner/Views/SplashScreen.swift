@@ -152,6 +152,7 @@ struct SplashScreen: View {
             }
         }
         .ignoresSafeArea()
+        .statusBar(hidden: true)
         .onAppear {
             startAnimations()
         }

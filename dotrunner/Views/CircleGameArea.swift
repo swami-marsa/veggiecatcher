@@ -131,7 +131,7 @@ struct CircleGameArea: View {
                 }
             }
         }
-        .edgesIgnoringSafeArea(.bottom) // Only ignore bottom safe area
+        .edgesIgnoringSafeArea(.all) // Make the background image fill the entire screen
         .onAppear {
             startFallingAnimation()
             startSpawning(screenWidth: UIScreen.main.bounds.width)
