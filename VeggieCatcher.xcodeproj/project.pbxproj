@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		56D291512DB67C41003766AF /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 56D291502DB67C41003766AF /* GoogleMobileAds */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		563084402DB3EB2A00671275 /* VeggieCatcher-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "VeggieCatcher-Info.plist"; sourceTree = "<group>"; };
 		56442D4C2CE999D20078B93A /* VeggieCatcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VeggieCatcher.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -24,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				56D291512DB67C41003766AF /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +72,7 @@
 			);
 			name = VeggieCatcher;
 			packageProductDependencies = (
+				56D291502DB67C41003766AF /* GoogleMobileAds */,
 			);
 			productName = dotrunner;
 			productReference = 56442D4C2CE999D20078B93A /* VeggieCatcher.app */;
@@ -96,6 +102,9 @@
 			);
 			mainGroup = 56442D432CE999D20078B93A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				56D2914F2DB67C41003766AF /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 56442D4D2CE999D20078B93A /* Products */;
 			projectDirPath = "";
@@ -351,6 +360,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		56D2914F2DB67C41003766AF /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		56D291502DB67C41003766AF /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 56D2914F2DB67C41003766AF /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 56442D442CE999D20078B93A /* Project object */;
 }

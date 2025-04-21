@@ -1,7 +1,9 @@
 import SwiftUI
+import GoogleMobileAds
+import AppTrackingTransparency
 
 /// A manager class for handling ads in the app
-class AdManager: ObservableObject {
+class AdManager: NSObject, ObservableObject {
     /// Shared singleton instance
     static let shared = AdManager()
     
@@ -40,47 +42,96 @@ class AdManager: ObservableObject {
     /// IMPORTANT: Set to false before submitting to App Store
     private let useTestAds = true // ALWAYS TRUE DURING DEVELOPMENT
     
+    // MARK: - AdMob Properties
+    
+    /// The loaded interstitial ad
+    private var interstitialAd: InterstitialAd?
+    
+    /// The loaded rewarded ad
+    private var rewardedAd: RewardedAd?
+    
+    /// Completion handler for interstitial ad
+    private var interstitialCompletion: (() -> Void)?
+    
+    /// Completion handler for rewarded ad
+    private var rewardedCompletion: ((Bool) -> Void)?
+    
     // MARK: - Initialization
     
     /// Private initializer for singleton
-    private init() {
+    override private init() {
+        super.init()
         print("AdManager initialized")
-        // Make sure test ads are immediately available
-        setTestAdsReady()
     }
     
     // MARK: - Public Methods
     
-    /// Get the appropriate interstitial ad ID (always returns test ID during development)
+    /// Get the appropriate interstitial ad ID (test ID during development)
     private func getInterstitialAdID() -> String {
-        // Force using test IDs during development
-        return testInterstitialAdID
+        return useTestAds ? testInterstitialAdID : interstitialAdID
     }
     
-    /// Get the appropriate rewarded ad ID (always returns test ID during development)
+    /// Get the appropriate rewarded ad ID (test ID during development)
     private func getRewardedAdID() -> String {
-        // Force using test IDs during development
-        return testRewardedAdID
+        return useTestAds ? testRewardedAdID : rewardedAdID
     }
     
     /// Make test ads immediately ready for testing
     func setTestAdsReady() {
-        print("✅ TEST ADS: Setting test ads as ready")
-        DispatchQueue.main.async {
-            self.isInterstitialAdReady = true
-            self.isRewardedAdReady = true
+        if useTestAds {
+            print("✅ TEST ADS: Setting test ads as ready")
+            prepareInterstitialAd()
+            prepareRewardedAd()
         }
     }
     
     /// Initialize the ad system
     func initialize() {
-        // Log which ad IDs we're using
-        print("📱 USING TEST AD IDs ONLY IN DEV MODE:")
-        print("🔄 Test Interstitial ID: \(testInterstitialAdID)")
-        print("⭐ Test Rewarded ID: \(testRewardedAdID)")
+        // Initialize the Mobile Ads SDK
+        MobileAds.initialize()
+        print("📱 AdMob SDK initialized")
         
-        // Make test ads immediately available
-        setTestAdsReady()
+        // Log which ad IDs we're using
+        if useTestAds {
+            print("📱 USING TEST AD IDs IN DEV MODE:")
+            print("🔄 Test Interstitial ID: \(testInterstitialAdID)")
+            print("⭐ Test Rewarded ID: \(testRewardedAdID)")
+        } else {
+            print("📱 USING PRODUCTION AD IDs:")
+            print("🔄 Interstitial ID: \(interstitialAdID)")
+            print("⭐ Rewarded ID: \(rewardedAdID)")
+        }
+        
+        // Request ATT authorization after a delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.requestATTAuthorization()
+        }
+        
+        // Prepare ads
+        prepareInterstitialAd()
+        prepareRewardedAd()
+    }
+    
+    /// Request App Tracking Transparency authorization
+    private func requestATTAuthorization() {
+        if #available(iOS 14, *) {
+            ATTrackingManager.requestTrackingAuthorization { status in
+                print("📱 ATT authorization status: \(status.rawValue)")
+            }
+        }
+    }
+    
+    /// Get the root view controller
+    private func getRootViewController() -> UIViewController? {
+        // For iOS 15 and later
+        if #available(iOS 15.0, *) {
+            let scenes = UIApplication.shared.connectedScenes
+            let windowScene = scenes.first as? UIWindowScene
+            return windowScene?.windows.first?.rootViewController
+        } else {
+            // For iOS 14 and earlier
+            return UIApplication.shared.windows.first?.rootViewController
+        }
     }
     
     /// Check if an interstitial ad should be shown for the given level
@@ -91,7 +142,6 @@ class AdManager: ObservableObject {
         guard isInterstitialAdReady else { return false }
         
         // Show an ad every 4 levels (4, 8, 12, etc.)
-        // The correct formula is level % levelsBetweenInterstitials == 0
         let shouldShow = level > 0 && level % levelsBetweenInterstitials == 0
         
         // Debug output
@@ -106,24 +156,25 @@ class AdManager: ObservableObject {
     /// Show an interstitial ad if one is available
     /// - Parameter completion: Callback to execute after ad is dismissed
     func showInterstitialAd(completion: @escaping () -> Void) {
-        guard areAdsEnabled, isInterstitialAdReady else {
+        guard areAdsEnabled, isInterstitialAdReady, let interstitialAd = interstitialAd else {
             print("❌ Interstitial ad not ready or disabled")
             completion()
             return
         }
         
-        print("📱 Showing test interstitial ad with ID: \(getInterstitialAdID())")
+        print("📱 Showing interstitial ad with ID: \(getInterstitialAdID())")
         
         // Set ad as not ready to prevent multiple shows
         isInterstitialAdReady = false
+        interstitialCompletion = completion
         
-        // For stub implementation, simulate ad showing and dismissal with delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            print("✅ Test interstitial ad dismissed")
-            
-            // Load next ad before calling completion
-            self.prepareInterstitialAd()
+        // Get the root view controller to present the ad
+        if let rootViewController = getRootViewController() {
+            interstitialAd.present(from: rootViewController)
+        } else {
+            print("❌ No root view controller found to present interstitial ad")
             completion()
+            prepareInterstitialAd()
         }
     }
     
@@ -138,26 +189,31 @@ class AdManager: ObservableObject {
     /// Show a rewarded ad if one is available
     /// - Parameter completion: Callback with boolean indicating if reward should be given
     func showRewardedAd(completion: @escaping (Bool) -> Void) {
-        guard areAdsEnabled, isRewardedAdReady else {
+        guard areAdsEnabled, isRewardedAdReady, let rewardedAd = rewardedAd else {
             print("❌ Rewarded ad not ready or disabled")
             completion(false)
             return
         }
         
-        print("📱 Showing test rewarded ad with ID: \(getRewardedAdID())")
+        print("📱 Showing rewarded ad with ID: \(getRewardedAdID())")
         
         // Set ad as not ready immediately to prevent multiple shows
         isRewardedAdReady = false
+        rewardedCompletion = completion
         
-        // For stub implementation, simulate ad showing and reward with delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            print("⭐ Test rewarded ad completed, giving reward")
-            
-            // Load next ad
-            self.prepareRewardedAd()
-            
-            // Deliver the reward
-            completion(true)
+        // Get the root view controller to present the ad
+        if let rootViewController = getRootViewController() {
+            rewardedAd.present(from: rootViewController, userDidEarnRewardHandler: {
+                // This callback is triggered when the reward is earned
+                let reward = rewardedAd.adReward
+                print("⭐ User earned reward: \(reward.amount) \(reward.type)")
+                self.rewardedCompletion?(true)
+                self.rewardedCompletion = nil
+            })
+        } else {
+            print("❌ No root view controller found to present rewarded ad")
+            completion(false)
+            prepareRewardedAd()
         }
     }
     
@@ -165,12 +221,24 @@ class AdManager: ObservableObject {
     func prepareInterstitialAd() {
         guard areAdsEnabled else { return }
         
-        print("🔄 Preparing test interstitial ad")
+        print("🔄 Preparing interstitial ad")
         
-        // Simulate ad loading
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.isInterstitialAdReady = true
-            print("✅ Test interstitial ad ready")
+        let request = Request()
+        InterstitialAd.load(with: getInterstitialAdID(), request: request) { [weak self] ad, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("❌ Failed to load interstitial ad: \(error.localizedDescription)")
+                return
+            }
+            
+            print("✅ Interstitial ad loaded successfully")
+            self.interstitialAd = ad
+            self.interstitialAd?.fullScreenContentDelegate = self
+            
+            DispatchQueue.main.async {
+                self.isInterstitialAdReady = true
+            }
         }
     }
     
@@ -178,12 +246,84 @@ class AdManager: ObservableObject {
     func prepareRewardedAd() {
         guard areAdsEnabled else { return }
         
-        print("🔄 Preparing test rewarded ad")
+        print("🔄 Preparing rewarded ad")
         
-        // Simulate ad loading
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.isRewardedAdReady = true
-            print("✅ Test rewarded ad ready")
+        let request = Request()
+        RewardedAd.load(with: getRewardedAdID(), request: request) { [weak self] ad, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("❌ Failed to load rewarded ad: \(error.localizedDescription)")
+                return
+            }
+            
+            print("✅ Rewarded ad loaded successfully")
+            self.rewardedAd = ad
+            self.rewardedAd?.fullScreenContentDelegate = self
+            
+            DispatchQueue.main.async {
+                self.isRewardedAdReady = true
+            }
+        }
+    }
+}
+
+// MARK: - FullScreenContentDelegate
+extension AdManager: FullScreenContentDelegate {
+    /// Called when an ad impression is recorded
+    func adDidRecordImpression(_ ad: FullScreenPresentingAd) {
+        print("📊 Ad impression recorded")
+    }
+    
+    /// Called when an ad is clicked
+    func adDidRecordClick(_ ad: FullScreenPresentingAd) {
+        print("📊 Ad click recorded")
+    }
+    
+    /// Called when an ad fails to present
+    func ad(_ ad: FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        print("❌ Ad failed to present: \(error.localizedDescription)")
+        
+        // Reset flags and reload ads
+        DispatchQueue.main.async {
+            if ad as? InterstitialAd == self.interstitialAd {
+                self.interstitialCompletion?()
+                self.interstitialCompletion = nil
+                self.prepareInterstitialAd()
+            } else if ad as? RewardedAd == self.rewardedAd {
+                self.rewardedCompletion?(false)
+                self.rewardedCompletion = nil
+                self.prepareRewardedAd()
+            }
+        }
+    }
+    
+    /// Called just before an ad is presented
+    func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {
+        print("📱 Ad will present")
+    }
+    
+    /// Called when an ad is dismissed
+    func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
+        print("📱 Ad was dismissed")
+        
+        // Handle callbacks and reload ads
+        DispatchQueue.main.async {
+            if ad as? InterstitialAd == self.interstitialAd {
+                self.interstitialCompletion?()
+                self.interstitialCompletion = nil
+                self.prepareInterstitialAd()
+            } else if ad as? RewardedAd == self.rewardedAd {
+                // Note: For rewarded ads, the reward should already be handled
+                // via the userDidEarnReward callback
+                // This is just cleanup
+                if let completion = self.rewardedCompletion {
+                    // If the completion is still set, it means the reward wasn't earned
+                    completion(false)
+                    self.rewardedCompletion = nil
+                }
+                self.prepareRewardedAd()
+            }
         }
     }
 } 
