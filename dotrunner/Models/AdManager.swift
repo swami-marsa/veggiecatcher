@@ -1,6 +1,5 @@
 import SwiftUI
 import GoogleMobileAds
-import AppTrackingTransparency
 
 /// A manager class for handling ads in the app
 class AdManager: NSObject, ObservableObject {
@@ -102,23 +101,9 @@ class AdManager: NSObject, ObservableObject {
             print("⭐ Rewarded ID: \(rewardedAdID)")
         }
         
-        // Request ATT authorization after a delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.requestATTAuthorization()
-        }
-        
         // Prepare ads
         prepareInterstitialAd()
         prepareRewardedAd()
-    }
-    
-    /// Request App Tracking Transparency authorization
-    private func requestATTAuthorization() {
-        if #available(iOS 14, *) {
-            ATTrackingManager.requestTrackingAuthorization { status in
-                print("📱 ATT authorization status: \(status.rawValue)")
-            }
-        }
     }
     
     /// Get the root view controller

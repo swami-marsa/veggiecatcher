@@ -258,7 +258,7 @@
 				CODE_SIGN_ENTITLEMENTS = dotrunner/dotrunner.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"dotrunner/Preview Content\"";
 				DEVELOPMENT_TEAM = YNVGX8JJCU;
@@ -303,7 +303,7 @@
 				CODE_SIGN_ENTITLEMENTS = dotrunner/dotrunner.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"dotrunner/Preview Content\"";
 				DEVELOPMENT_TEAM = YNVGX8JJCU;
 				ENABLE_PREVIEWS = YES;
