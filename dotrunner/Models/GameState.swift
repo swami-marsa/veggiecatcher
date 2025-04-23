@@ -369,6 +369,7 @@ class GameState: ObservableObject {
     /// Advance to the next level
     func startNextLevel() {
         // Save current progress
+        // We need to save the current level as completed, not the next level
         scoreManager.saveLastPlayedLevel(levelManager.currentLevel)
         scoreManager.saveContinuationScore()
         

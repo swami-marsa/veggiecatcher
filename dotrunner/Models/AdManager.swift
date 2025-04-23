@@ -39,7 +39,7 @@ class AdManager: NSObject, ObservableObject {
     
     /// Flag to use test ads instead of production ads
     /// IMPORTANT: Set to false before submitting to App Store
-    private let useTestAds = true // ALWAYS TRUE DURING DEVELOPMENT
+    private let useTestAds = false // Set to false for production
     
     // MARK: - AdMob Properties
     

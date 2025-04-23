@@ -37,7 +37,9 @@ struct HomeScreen: View {
             // Debug the continue button condition
             print("DEBUG: lastPlayedLevel = \(gameState.lastPlayedLevel)")
             print("DEBUG: isGameOver = \(gameState.isGameOver)")
-            print("DEBUG: Continue button should show: \(gameState.lastPlayedLevel > 1 && !gameState.isGameOver)")
+            print("DEBUG: highestLevelReached = \(gameState.highestLevelReached)")
+            print("DEBUG: continuationScore = \(gameState.continuationScore)")
+            print("DEBUG: Continue button should show: \(gameState.lastPlayedLevel >= 1 && (gameState.continuationScore > 0 || gameState.highestLevelReached > 1))")
             print("DEBUG: Device is iPad: \(deviceManager.isIpad)")
         }
         .onDisappear {
@@ -386,7 +388,10 @@ struct HomeScreen: View {
     // MARK: - Shared Game Buttons
     private func gameButtons(gameState: GameState) -> some View {
         VStack(spacing: deviceManager.isIpad ? 40 : 25) {
-            if gameState.lastPlayedLevel >= 1 {
+            // Show Continue button only if player has any progress
+            // For a fresh game, lastPlayedLevel is 1 and continuationScore is 0
+            // After completing level 1, lastPlayedLevel is still 1 but continuationScore is not 0
+            if gameState.lastPlayedLevel >= 1 && (gameState.continuationScore > 0 || gameState.highestLevelReached > 1) {
                         Button {
                             withAnimation {
                                 gameState.continueGame()
